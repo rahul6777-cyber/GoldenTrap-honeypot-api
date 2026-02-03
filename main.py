@@ -1,16 +1,15 @@
-from fastapi import FastAPI, Depends, Body
-from typing import Any, Optional
+from fastapi import FastAPI, Request, Depends, Body
 
 from detector import detect_scam
 from responder import generate_reply
 from extractor import extract_intel
-from security import verify_api_key, verify_api_key_optional
+from security import verify_api_key
 
 app = FastAPI(title="Agentic Scam Honeypot API")
 
 
 # --------------------------------------------------
-# ✅ ROOT HEALTH CHECK (OPTIONAL)
+# ✅ ROOT (OPTIONAL HEALTH CHECK)
 # --------------------------------------------------
 @app.get("/")
 def root():
@@ -21,14 +20,13 @@ def root():
 
 
 # --------------------------------------------------
-# ✅ GUVI / HACKATHON VALIDATION ENDPOINT
-# (Relaxed: accepts any body, optional API key)
+# ✅ GUVI / HACKATHON TEST ENDPOINT
+# ❗ NO AUTH
+# ❗ NO BODY PARSING
+# ❗ NO VALIDATION
 # --------------------------------------------------
 @app.post("/honeypot/test")
-def honeypot_test(
-    payload: Any = Body(default=None),
-    api_key: str = Depends(verify_api_key_optional)
-):
+async def honeypot_test(request: Request):
     return {
         "status": "success",
         "message": "Honeypot endpoint reachable",
@@ -43,7 +41,7 @@ def honeypot_test(
 
 
 # --------------------------------------------------
-# 🕵️ REAL HONEYPOT AGENT ENDPOINT (STRICT & SECURE)
+# 🕵️ REAL AGENTIC HONEYPOT ENDPOINT (SECURE)
 # --------------------------------------------------
 @app.post("/webhook/message")
 def webhook_message(
