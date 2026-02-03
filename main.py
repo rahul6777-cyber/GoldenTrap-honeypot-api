@@ -22,11 +22,8 @@ def root():
 # --------------------------------------------------
 # ✅ TEST ENDPOINT (HACKATHON VALIDATION)
 # --------------------------------------------------
-@app.post("/honeypot/test")
-def honeypot_test(
-    payload: Optional[dict] = Body(None),
-    api_key: str = Depends(verify_api_key)
-):
+@app.get("/honeypot/test")
+def honeypot_test(api_key: str = Depends(verify_api_key)):
     return {
         "status": "success",
         "message": "Honeypot endpoint reachable",
@@ -38,6 +35,7 @@ def honeypot_test(
         ],
         "version": "1.0.0"
     }
+    
 
     
 
