@@ -26,18 +26,24 @@ def root():
 # ❗ NO VALIDATION
 # --------------------------------------------------
 @app.post("/honeypot/test")
-async def honeypot_test(request: Request):
+def honeypot_test(
+    payload: Optional[dict] = Body(None),
+    api_key: str = Depends(verify_api_key)
+):
+    # default fallback reply
+    reply_text = "Why is my account being suspended?"
+
+    # if tester sends message text, you can adapt reply (optional)
+    if payload and "message" in payload:
+        text = payload.get("message", {}).get("text", "")
+        if "blocked" in text.lower() or "suspended" in text.lower():
+            reply_text = "Why is my account being suspended?"
+
     return {
         "status": "success",
-        "message": "Honeypot endpoint reachable",
-        "agent": "active",
-        "capabilities": [
-            "scam_detection",
-            "auto_response",
-            "intelligence_extraction"
-        ],
-        "version": "1.0.0"
+        "reply": reply_text
     }
+
 
 
 # --------------------------------------------------
